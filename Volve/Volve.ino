@@ -1,3 +1,4 @@
+// James Cooper 08/06/22 19:35
 #include <ESP32CAN.h>
 #include <CAN_config.h>
 #include <HardwareSerial.h>
@@ -21,8 +22,7 @@ const char brightness_levels[] = {0x20, 0x61, 0x62, 0x23, 0x64, 0x25, 0x26, 0x67
 int current_display_mode = 0x4C;
 char current_brightness_level = 15;
 
-//BluetoothSerial SerialBT;
-
+// Function to handle transmission of CAN packets:
 void can_tx(int id, uint8_t d[8]){
    CAN_frame_t tx_frame;
     tx_frame.FIR.B.FF = CAN_frame_ext;
@@ -87,6 +87,7 @@ void setup() {
 //  can_tx(0x0FFFFE, d);/
   
   profiles[0]->setupDone();
+  Serial.println("Return from setup");
 }
 
 void loop(){
@@ -94,9 +95,6 @@ void loop(){
   if (Serial.available()) {
     command = Serial.readString();
   }
-  //if (SerialBT.available()) {
-   // command = SerialBT.readString();
-  //}
 
   if(currentProfile == -1){
     if(command.startsWith("getProfiles")){
@@ -145,18 +143,19 @@ void loop(){
   can_RX();
 
  //Send data to RTI Volvo Display
-
  rtiWrite();
  
 }
 
 float lastCanRX = millis();
+
 void can_RX(){
   CAN_frame_t rx_frame;
   // Receive next CAN frame from queue
   if (xQueueReceive(CAN_cfg.rx_queue, &rx_frame, 3 * portTICK_PERIOD_MS) == pdTRUE) {
     profiles[0]->can_rx(rx_frame.MsgID, rx_frame.data.u8);
     lastCanRX = millis();
+   // printAll("CAN Rx");
   }
   
  //Go into deep sleep if no CAN frame recieved for 1 minute
@@ -178,7 +177,6 @@ void can_RX(){
 }
 
 void printAll(String s){
-  //SerialBT.print(s);
   Serial.print(s);
 }
 
