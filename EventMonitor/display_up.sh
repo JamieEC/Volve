@@ -1,1 +1,1 @@
-echo -e 'command DISPLAY_UP\n' > /dev/serial0
+echo -e 'command DISPLAY_UP\n' > /dev/ttyUSB0
